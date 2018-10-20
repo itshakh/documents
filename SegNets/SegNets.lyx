@@ -1,0 +1,523 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+SegNets Overview, Sep 2018
+\end_layout
+
+\begin_layout Author
+Tzachi Hershkovich
+\end_layout
+
+\begin_layout Section*
+Papers summaries
+\end_layout
+
+\begin_layout Subsection*
+ENet, 2016
+\end_layout
+
+\begin_layout Standard
+ENet is a lightweight segmentation network that was orignally designed for
+ real time applications which requires semantic segmentation in high frequencies.
+\end_layout
+
+\begin_layout Standard
+Basic architecture of the network can be seen in fig.
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:ENet-architecuture-:"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Enet/architecture_table.png
+	lyxscale 50
+	scale 30
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Graphics
+	filename Enet/inital_layer.png
+	scale 30
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename Enet/bottleneck.png
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:ENet-architecuture-:"
+
+\end_inset
+
+ENet architecuture : each bottleneck section is design according to (b).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The Network design is a an Encoder-Decoder such that its Encoder downsamples
+ the input image and extract high level features for the semantic segmentation
+ and the Encoder refines its pixel-wise percision.
+ This means that most of the classification work is done at the encoder
+ side.
+ This allows the network to be much thinner than other encoder-decoder networks
+ such as SegNet.
+ The main contribution of the paper is the usage of the bottleneck layer
+ design in order to perserve large receptive field on the one hand and high
+ parallalizm on the other hand which led to high performance in large image
+ resolutions.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Section 4 - Design choises, feature map resolution.
+
+\series default
+ 
+\begin_inset Quotes erd
+\end_inset
+
+...
+ However, downsampling has one big advantage.
+ Filters operating on downsampled images have a bigger receptive field,
+ that allows them to gather more context.
+ This is especially important when trying to differentiate between classes
+ like, for example, rider and pedestrian in a road scene.
+ It is not enough that the network learns how people look, the context in
+ which they appear is equally important.
+ In the end, we have found that it is better to use dilated convolutions
+ for this purpose [30].
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Section 4 - Decoder size.
+ 
+\series default
+
+\begin_inset Quotes eld
+\end_inset
+
+In this work we would like to provide a different view on encoder-decoder
+ architec- tures than the one presented in [11].
+ SegNet is a very symmetric architecture, as the encoder is an exact mirror
+ of the encoder.
+ Instead, our architecture consists of a large encoder, and a small decoder.
+ This is motivated by the idea that the encoder should be able to work in
+ a similar fashion to original classification architectures, i.e.
+ to operate on smaller resolution data and provide for information processing
+ and filtering.
+ Instead, the role of the the decoder, is to upsample the output of the
+ encoder, only fine-tuning the details.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Section 4 - Nonlinear operations.
+ 
+\series default
+
+\begin_inset Quotes eld
+\end_inset
+
+...We replaced all ReLUs in the network with PReLUs [26], which use an additional
+ parameter per feature map, with the goal of learning the negative slope
+ of non-linearities.
+ We expected that in layers where identity is a preferable transfer function,
+ PReLU weights will have values close to 1, and conversely, values around
+ 0 if ReLU is preferable.
+ Results of this experiment can be seen in fig.
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Enet-PReLU-weight-distribution"
+
+\end_inset
+
+.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Enet/Prelu.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Enet-PReLU-weight-distribution"
+
+\end_inset
+
+PReLU weight distribution vs network depth.
+ Blue line is the weights mean, while an area between maximum and minimum
+ weight is grayed out.
+ Each vertical dotted line corresponds to a PReLU in the main branch and
+ marks the boundary between each of bottleneck blocks.
+ The gray vertical line at 67th module is placed at encoder-decoder border.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ It is notable that the decoder weights become much more positive and learn
+ functions closer to identity.
+ This confirms our intuitions that the decoder is used only to fine-tune
+ the upsampled output.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Section 4 - Information-preserving dimensionality changes.
+ 
+\series default
+
+\begin_inset Quotes eld
+\end_inset
+
+...we chose to perform pooling operation in parallel with a convolution of
+ stride 2, and concatenate resulting feature maps.
+ This technique allowed us to speed up inference time of the initial block
+ 10 times.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Section 4 - Factorizing filters.
+ 
+\series default
+It has been shown that convolutional weights have a fair amount of redundancy,
+ and each n × n convolution can be decomposed into two smaller ones following
+ each other: one with a n × 1 filter and the other with a 1 × n filter [32].
+ This idea has been also presented in [28], and from now on we adopt their
+ naming convention and will refer to these as asymmetric convolutions.
+ We have used asymmetric convolutions with n = 5 in our network, so cost
+ of these two operations is similar to a single 3 × 3 convolution.
+ This allowed to increase the variety of functions learned by blocks and
+ increase the receptive field.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Section 5 - Results.
+ 
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+
+\series bold
+\begin_inset Graphics
+	filename Enet/Runtime_comparisson_1.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Enet - Run-time-comparisson"
+
+\end_inset
+
+Run time comparisson with SegNet model
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+UNet
+\end_layout
+
+\begin_layout Standard
+A network originally developed for small data sets and biological data in
+ particular.
+ Its main contribution is the way they trained the network (which is pretty
+ light weight) using data augmentations and smart training strategy.
+\end_layout
+
+\begin_layout Standard
+Network architecture is an encoder-decoder style with symetry (very similar
+ to other approaches) fig
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:U-net-architecture"
+
+\end_inset
+
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename UNet/architecture.png
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:U-net-architecture"
+
+\end_inset
+
+U-net architecture (example for 32x32 pixels in the lowest resolution).
+ Each blue box corresponds to a multi-channel feature map.
+ The number of channels is denoted on top of the box.
+ The x-y-size is provided at the lower left edge of the box.
+ White boxes represent copied feature maps.
+ The arrows denote the different operations.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Section 2 - System architecture.
+ 
+\series default
+
+\begin_inset Quotes eld
+\end_inset
+
+The network architecture is illustrated in Figure 1.
+ It consists of a contracting path (left side) and an expansive path (right
+ side).
+ The contracting path follows the typical architecture of a convolutional
+ network.
+ It consists of the repeated application of two 3x3 convolutions (unpadded
+ convolutions), each followed by a rectified linear unit (ReLU) and a 2x2
+ max pooling operation with stride 2 for downsampling.
+ At each downsampling step we double the number of feature channels.
+ Every step in the expansive path consists of an upsampling of the feature
+ map followed by a 2x2 convolution (“up-convolution”) that halves the number
+ of feature channels, a concatenation with the correspondingly cropped feature
+ map from the contracting path, and two 3x3 convolutions, each followed
+ by a ReLU.
+ The cropping is necessary due to the loss of border pixels in every convolution.
+ At the final layer a 1x1 convolution is used to map each 64- component
+ feature vector to the desired number of classes.
+ In total the network has 23 convolutional layers.
+ To allow a seamless tiling of the output segmentation map (see Figure 2),
+ it is important to select the input tile size such that all 2x2 max-pooling
+ operations are applied to a layer with an even x- and y-size.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+DilatedNets - Dilated convolution layers
+\end_layout
+
+\begin_layout Standard
+Dilated convolution is an extension to the traditional convolution operator.
+ Let 
+\begin_inset Formula $F:\mathbb{Z}^{2}\rightarrow\mathbb{R}$
+\end_inset
+
+ be a descrete 2D function.
+ Let 
+\begin_inset Formula $\Omega_{r}=\left[-r,r\right]^{2}\cap\mathbb{Z}^{2}$
+\end_inset
+
+ and let 
+\begin_inset Formula $k:\Omega\rightarrow\mathbb{R}$
+\end_inset
+
+ be a dilated kernel filter of size 
+\begin_inset Formula $\left(2r+1\right)^{2}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_body
+\end_document
